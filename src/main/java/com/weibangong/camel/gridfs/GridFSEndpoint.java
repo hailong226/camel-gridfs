@@ -37,6 +37,9 @@ public class GridFSEndpoint extends DefaultEndpoint {
     @UriParam
     private GridFSOperation operation;
 
+    @UriParam
+    private String objectId;
+
     private Mongo mongoConnection;
 
     private GridFS gridfs;
@@ -101,6 +104,14 @@ public class GridFSEndpoint extends DefaultEndpoint {
 
     public String getBucket() {
         return bucket;
+    }
+
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    public String getObjectId() {
+        return objectId;
     }
 
     public void setMongoConnection(Mongo mongoConnection) {

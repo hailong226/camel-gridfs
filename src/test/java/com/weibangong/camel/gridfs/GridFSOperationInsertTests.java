@@ -14,9 +14,9 @@ import java.io.IOException;
 /**
  * Created by jianghailong on 15/6/23.
  */
-public class GridFSOperationTests extends AbstractGridFSTest {
+public class GridFSOperationInsertTests extends AbstractGridFSTest {
 
-    private static final String FILE_PATH = GridFSOperationTests.class.getResource("/1.png").getPath();
+    private static final String FILE_PATH = GridFSOperationInsertTests.class.getResource("/1.png").getPath();
 
     @Test
     public void testInsertWithPath() {

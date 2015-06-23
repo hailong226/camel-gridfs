@@ -3,7 +3,9 @@ package com.weibangong.camel.gridfs;
 import com.mongodb.gridfs.GridFSInputFile;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultProducer;
+import org.apache.camel.util.MessageHelper;
 import org.apache.camel.util.ObjectHelper;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,8 @@ public class GridFSProducer extends DefaultProducer {
         checkProperty(exchange, file);
         file.save();
 
+        prepareResponseMessage(exchange);
+
         exchange.getOut().setHeader(GridFSConstants.FILE_ID, file.getId());
         exchange.getOut().setHeader(GridFSConstants.FILE_MD5, file.getMD5());
         exchange.getOut().setHeader(GridFSConstants.FILE_UPLOAD_DATE, file.getUploadDate());
@@ -81,6 +85,16 @@ public class GridFSProducer extends DefaultProducer {
     }
 
     protected void doRemove(Exchange exchange) throws CamelGridFsException{
+        String objectId = this.endpoint.getObjectId();
+        if (exchange.getIn().getHeader(GridFSConstants.GRIDFS_OBJECT_ID) != null) {
+            objectId = exchange.getIn().getHeader(GridFSConstants.GRIDFS_OBJECT_ID, String.class);
+        }
+        if (objectId != null) {
+            this.endpoint.getGridfs().remove(new ObjectId(objectId));
+        }
+
+        prepareResponseMessage(exchange);
+        exchange.getOut().setHeader(GridFSConstants.FILE_ID, objectId);
     }
 
     private GridFSInputFile calculateContentWithBody(Exchange exchange) throws CamelGridFsException {
@@ -145,5 +159,9 @@ public class GridFSProducer extends DefaultProducer {
         if (fileChunkSize != null) {
             file.setChunkSize(fileChunkSize);
         }
+    }
+
+    private void prepareResponseMessage(Exchange exchange) {
+        MessageHelper.copyHeaders(exchange.getIn(), exchange.getOut(), false);
     }
 }

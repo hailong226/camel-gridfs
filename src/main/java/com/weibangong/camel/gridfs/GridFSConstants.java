@@ -5,6 +5,8 @@ package com.weibangong.camel.gridfs;
  */
 public interface GridFSConstants {
 
+    String GRIDFS_OBJECT_ID     = "CamelGridFSObjectId";
+
     String OPERATION_HEADER     = "CamelGridFSOperation";
 
     String FILE_CHUNK_SIZE      = "CamelGridFSChunkSize";
