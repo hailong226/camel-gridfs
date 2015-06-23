@@ -42,7 +42,7 @@ public class GridFSComponent extends UriEndpointComponent {
         super.doShutdown();
     }
 
-    public static CamelGridFsException wrapInCamelMongoDbException(Throwable t) {
+    public static CamelGridFsException wrapInCamelGridFsException(Throwable t) {
         if (t instanceof CamelGridFsException) {
             return (CamelGridFsException) t;
         } else {

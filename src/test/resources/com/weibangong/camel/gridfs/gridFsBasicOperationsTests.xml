@@ -27,7 +27,7 @@
 
         <route>
             <from uri="direct:insert" />
-            <to uri="mongodb:testMongodb?database={{mongodb.testDb}}&amp;operation=insert&amp;" />
+            <to uri="mongodb:testMongodb?database={{mongodb.testDb}}&amp;operation=insert" />
         </route>
     </camelContext>
 

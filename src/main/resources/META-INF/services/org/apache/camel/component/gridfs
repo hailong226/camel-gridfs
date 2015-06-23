@@ -1,1 +1,1 @@
-class=GridFSComponent
+class=com.weibangong.camel.gridfs.GridFSComponent

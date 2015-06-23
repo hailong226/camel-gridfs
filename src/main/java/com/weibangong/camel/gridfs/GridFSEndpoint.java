@@ -87,6 +87,14 @@ public class GridFSEndpoint extends DefaultEndpoint {
         return connectionBean;
     }
 
+    public void setDatabase(String database) {
+        this.database = database;
+    }
+
+    public String getDatabase() {
+        return database;
+    }
+
     public void setBucket(String bucket) {
         this.bucket = bucket;
     }

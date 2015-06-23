@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.FileNameMap;
+import java.net.URLConnection;
 
 /**
  * The GridFS producer.
@@ -43,7 +45,7 @@ public class GridFSProducer extends DefaultProducer {
         try {
             invokeOperation(operation, exchange);
         } catch (Exception e) {
-            throw GridFSComponent.wrapInCamelMongoDbException(e);
+            throw GridFSComponent.wrapInCamelGridFsException(e);
         }
     }
 
@@ -72,7 +74,8 @@ public class GridFSProducer extends DefaultProducer {
         exchange.getOut().setHeader(GridFSConstants.FILE_ID, file.getId());
         exchange.getOut().setHeader(GridFSConstants.FILE_MD5, file.getMD5());
         exchange.getOut().setHeader(GridFSConstants.FILE_UPLOAD_DATE, file.getUploadDate());
-        exchange.getOut().setHeader(Exchange.FILE_NAME, file.getContentType());
+        exchange.getOut().setHeader(Exchange.FILE_CONTENT_TYPE, file.getContentType());
+        exchange.getOut().setHeader(Exchange.FILE_NAME, file.getFilename());
         exchange.getOut().setHeader(Exchange.FILE_LENGTH, file.getLength());
         exchange.getOut().setHeader(Exchange.FILE_LAST_MODIFIED, file.getUploadDate());
     }
@@ -80,7 +83,7 @@ public class GridFSProducer extends DefaultProducer {
     protected void doRemove(Exchange exchange) throws CamelGridFsException{
     }
 
-    private GridFSInputFile calculateContentWithBody(Exchange exchange) {
+    private GridFSInputFile calculateContentWithBody(Exchange exchange) throws CamelGridFsException {
         GridFSInputFile file = null;
         Object input = exchange.getIn().getBody();
         if (input != null) {
@@ -91,6 +94,8 @@ public class GridFSProducer extends DefaultProducer {
                         ObjectHelper.cast(InputStream.class, input),
                         this.endpoint.isCloseStreamOnPersist()
                 );
+            } else if (input instanceof File) {
+                file = createGridFSFile(ObjectHelper.cast(File.class, input));
             }
         }
         return file;
@@ -99,16 +104,27 @@ public class GridFSProducer extends DefaultProducer {
     private GridFSInputFile calculateContentWithHeader(Exchange exchange) throws CamelGridFsException {
         GridFSInputFile file = null;
         String filepath = exchange.getIn().getHeader(Exchange.FILE_PATH, String.class);
-        if (filepath != null) {
-            File localFile = new File(filepath);
-            if (!localFile.exists()) {
-                throw new IllegalStateException("Not found file " + filepath);
+        if (ObjectHelper.isNotEmpty(filepath)) {
+            file = createGridFSFile(new File(filepath));
+        }
+        return file;
+    }
+
+    private GridFSInputFile createGridFSFile(File storage) throws CamelGridFsException {
+        if (storage == null || !storage.exists()) {
+            throw new CamelGridFsException("File Not Found");
+        }
+        GridFSInputFile file;
+        try {
+            file = this.endpoint.getGridfs().createFile(storage);
+
+            FileNameMap fileNameMap = URLConnection.getFileNameMap();
+            String contentType = fileNameMap.getContentTypeFor(storage.getName());
+            if (contentType != null) {
+                file.setContentType(contentType);
             }
-            try {
-                file = this.endpoint.getGridfs().createFile(localFile);
-            } catch (IOException e) {
-                throw GridFSComponent.wrapInCamelMongoDbException(e);
-            }
+        } catch (IOException e) {
+            throw GridFSComponent.wrapInCamelGridFsException(e);
         }
         return file;
     }
@@ -117,6 +133,9 @@ public class GridFSProducer extends DefaultProducer {
         String contentType = exchange.getIn().getHeader(Exchange.FILE_CONTENT_TYPE, String.class);
         if (contentType != null) {
             file.setContentType(contentType);
+        }
+        if (file.getContentType() == null) {
+            file.setContentType("application/octet-stream");
         }
         String filename = exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
         if (filename != null) {
