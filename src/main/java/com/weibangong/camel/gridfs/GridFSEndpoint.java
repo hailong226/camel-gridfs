@@ -37,9 +37,6 @@ public class GridFSEndpoint extends DefaultEndpoint {
     @UriParam
     private GridFSOperation operation;
 
-    @UriParam
-    private String objectId;
-
     private Mongo mongoConnection;
 
     private GridFS gridfs;

@@ -1,13 +1,40 @@
-Camel Component Project
+Camel :: Mongodb GridFS
 =======================
 
-This project is a template of a Camel component.
+This project is a Camel component of Mongodb GridFS.
 
 To build this project use
 
     mvn install
 
-For more help see the Apache Camel documentation:
+## URL format
 
-    http://camel.apache.org/writing-components.html
-    
+    gridfs:connectionBean?database=databaseName&bucket=bucket&operation=operationName[&moreOptions...]
+
+## Endpoint options
+
+## Configuration of database in Spring XML
+
+## Sample route
+    下面的定义是使用Spring XML的格式定义的
+
+    <route>
+      <from uri="direct:start" />
+      <!-- using bean 'mongoBean' defined above -->
+      <to uri="gridfs:mongoBean?database=${mongodb.database}&amp;operation=insert" />
+      <to uri="direct:result" />
+    </route>
+
+## Mongodb GridFS operations - producer endpoints
+
+### Query operations
+
+#### findById
+
+### Create/update operations
+
+#### insert
+
+### Delete operations
+
+#### remove
