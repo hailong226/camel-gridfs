@@ -86,8 +86,8 @@ public class GridFSProducer extends DefaultProducer {
 
     protected void doRemove(Exchange exchange) throws CamelGridFsException{
         String objectId = this.endpoint.getObjectId();
-        if (exchange.getIn().getHeader(GridFSConstants.GRIDFS_OBJECT_ID) != null) {
-            objectId = exchange.getIn().getHeader(GridFSConstants.GRIDFS_OBJECT_ID, String.class);
+        if (exchange.getIn().getHeader(GridFSConstants.FILE_ID) != null) {
+            objectId = exchange.getIn().getHeader(GridFSConstants.FILE_ID, String.class);
         }
         if (objectId != null) {
             this.endpoint.getGridfs().remove(new ObjectId(objectId));

@@ -16,8 +16,6 @@ import java.io.IOException;
  */
 public class GridFSOperationInsertTests extends AbstractGridFSTest {
 
-    private static final String FILE_PATH = GridFSOperationInsertTests.class.getResource("/1.png").getPath();
-
     @Test
     public void testInsertWithPath() {
         Exchange exchange = template.request("direct:insert", new Processor() {

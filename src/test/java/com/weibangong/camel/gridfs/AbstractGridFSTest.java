@@ -15,6 +15,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  */
 public abstract class AbstractGridFSTest extends CamelTestSupport {
 
+    protected static final String FILE_PATH = GridFSOperationInsertTests.class.getResource("/1.png").getPath();
+
     protected static Mongo mongo;
     protected static DB db;
 
@@ -43,6 +45,7 @@ public abstract class AbstractGridFSTest extends CamelTestSupport {
             @Override
             public void configure() throws Exception {
                 from("direct:insert").to("gridfs:testMongodb?database={{mongodb.testDb}}&operation=insert");
+                from("direct:remove").to("gridfs:testMongodb?database={{mongodb.testDb}}&operation=remove");
             }
         };
     }
