@@ -1,4 +1,4 @@
-package com.weibangong.camel;
+package com.weibangong.camel.gridfs;
 
 import java.util.Date;
 

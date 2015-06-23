@@ -1,4 +1,4 @@
-package com.weibangong.camel;
+package com.weibangong.camel.gridfs;
 
 /**
  * Created by jianghailong on 15/6/22.

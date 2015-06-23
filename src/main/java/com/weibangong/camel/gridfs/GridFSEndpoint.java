@@ -1,4 +1,4 @@
-package com.weibangong.camel;
+package com.weibangong.camel.gridfs;
 
 import com.mongodb.DB;
 import com.mongodb.Mongo;
@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a GridFS endpoint.
  */
-@UriEndpoint(scheme = "gridfs", title = "GridFS", syntax="gridfs:name", consumerClass = GridFSConsumer.class, label = "GridFS")
+@UriEndpoint(scheme = "gridfs", title = "GridFS", syntax="gridfs:getConnectionBean", consumerClass = GridFSConsumer.class, label = "GridFS")
 public class GridFSEndpoint extends DefaultEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(GridFSEndpoint.class);
 
     @UriPath @Metadata(required = "true")
-    private String name;
+    private String connectionBean;
 
     @UriParam
     private String database;
@@ -79,12 +79,12 @@ public class GridFSEndpoint extends DefaultEndpoint {
         gridfs = new GridFS(db);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setConnectionBean(String connectionBean) {
+        this.connectionBean = connectionBean;
     }
 
-    public String getName() {
-        return name;
+    public String getConnectionBean() {
+        return connectionBean;
     }
 
     public void setBucket(String bucket) {

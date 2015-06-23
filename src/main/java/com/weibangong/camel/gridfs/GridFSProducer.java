@@ -1,4 +1,4 @@
-package com.weibangong.camel;
+package com.weibangong.camel.gridfs;
 
 import com.mongodb.gridfs.GridFSInputFile;
 import org.apache.camel.Exchange;

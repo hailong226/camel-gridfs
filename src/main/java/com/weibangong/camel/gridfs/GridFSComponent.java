@@ -1,4 +1,4 @@
-package com.weibangong.camel;
+package com.weibangong.camel.gridfs;
 
 import com.mongodb.Mongo;
 import org.apache.camel.CamelContext;
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class GridFSComponent extends UriEndpointComponent {
 
-    private volatile Mongo mongo;
+    private volatile Mongo db;
     
     public GridFSComponent() {
         super(GridFSEndpoint.class);
@@ -24,19 +24,20 @@ public class GridFSComponent extends UriEndpointComponent {
     }
 
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        if (mongo == null) {
-            mongo = CamelContextHelper.mandatoryLookup(getCamelContext(), remaining, Mongo.class);
+        if (db == null) {
+            db = CamelContextHelper.mandatoryLookup(getCamelContext(), remaining, Mongo.class);
         }
-        Endpoint endpoint = new GridFSEndpoint(uri, this);
-        parameters.put("mongoConnection", mongo);
+        GridFSEndpoint endpoint = new GridFSEndpoint(uri, this);
+        endpoint.setConnectionBean(remaining);
+        endpoint.setMongoConnection(db);
         setProperties(endpoint, parameters);
         return endpoint;
     }
 
     @Override
     protected void doShutdown() throws Exception {
-        if (mongo != null) {
-            mongo.close();
+        if (db != null) {
+            db.close();
         }
         super.doShutdown();
     }
