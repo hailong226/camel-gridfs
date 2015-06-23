@@ -106,14 +106,6 @@ public class GridFSEndpoint extends DefaultEndpoint {
         return bucket;
     }
 
-    public void setObjectId(String objectId) {
-        this.objectId = objectId;
-    }
-
-    public String getObjectId() {
-        return objectId;
-    }
-
     public void setMongoConnection(Mongo mongoConnection) {
         this.mongoConnection = mongoConnection;
     }

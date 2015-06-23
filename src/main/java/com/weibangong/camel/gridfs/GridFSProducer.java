@@ -1,5 +1,7 @@
 package com.weibangong.camel.gridfs;
 
+import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultProducer;
@@ -56,6 +58,8 @@ public class GridFSProducer extends DefaultProducer {
             case insert:
                 doInsert(exchange);
                 break;
+            case findById:
+                doFindById(exchange);
             case remove:
                 doRemove(exchange);
                 break;
@@ -74,27 +78,37 @@ public class GridFSProducer extends DefaultProducer {
         file.save();
 
         prepareResponseMessage(exchange);
-
-        exchange.getOut().setHeader(GridFSConstants.FILE_ID, file.getId());
-        exchange.getOut().setHeader(GridFSConstants.FILE_MD5, file.getMD5());
-        exchange.getOut().setHeader(GridFSConstants.FILE_UPLOAD_DATE, file.getUploadDate());
-        exchange.getOut().setHeader(Exchange.FILE_CONTENT_TYPE, file.getContentType());
-        exchange.getOut().setHeader(Exchange.FILE_NAME, file.getFilename());
-        exchange.getOut().setHeader(Exchange.FILE_LENGTH, file.getLength());
-        exchange.getOut().setHeader(Exchange.FILE_LAST_MODIFIED, file.getUploadDate());
+        prepareGridFsFileMessage(exchange, file);
     }
 
-    protected void doRemove(Exchange exchange) throws CamelGridFsException{
-        String objectId = this.endpoint.getObjectId();
-        if (exchange.getIn().getHeader(GridFSConstants.FILE_ID) != null) {
-            objectId = exchange.getIn().getHeader(GridFSConstants.FILE_ID, String.class);
-        }
+    protected void doFindById(Exchange exchange) throws CamelGridFsException {
+        prepareResponseMessage(exchange);
+        ObjectId objectId = calculateObjectIdFromHeader(exchange);
         if (objectId != null) {
-            this.endpoint.getGridfs().remove(new ObjectId(objectId));
+            GridFSDBFile file = this.endpoint.getGridfs().findOne(objectId);
+            prepareGridFsFileMessage(exchange, file);
+        }
+    }
+
+    protected void doRemove(Exchange exchange) throws CamelGridFsException {
+        ObjectId objectId = calculateObjectIdFromHeader(exchange);
+        if (objectId != null) {
+            this.endpoint.getGridfs().remove(objectId);
         }
 
         prepareResponseMessage(exchange);
-        exchange.getOut().setHeader(GridFSConstants.FILE_ID, objectId);
+    }
+
+    private ObjectId calculateObjectIdFromHeader(Exchange exchange) throws CamelGridFsException {
+        try {
+            if (exchange.getIn().getHeader(GridFSConstants.FILE_ID) != null) {
+                String objectId = exchange.getIn().getHeader(GridFSConstants.FILE_ID, String.class);
+                return new ObjectId(objectId);
+            }
+            return null;
+        } catch (IllegalArgumentException e) {
+            throw GridFSComponent.wrapInCamelGridFsException(e);
+        }
     }
 
     private GridFSInputFile calculateContentWithBody(Exchange exchange) throws CamelGridFsException {
@@ -163,5 +177,15 @@ public class GridFSProducer extends DefaultProducer {
 
     private void prepareResponseMessage(Exchange exchange) {
         MessageHelper.copyHeaders(exchange.getIn(), exchange.getOut(), false);
+    }
+
+    private void prepareGridFsFileMessage(Exchange exchange, GridFSFile file) {
+        exchange.getOut().setHeader(GridFSConstants.FILE_ID, file.getId());
+        exchange.getOut().setHeader(GridFSConstants.FILE_MD5, file.getMD5());
+        exchange.getOut().setHeader(GridFSConstants.FILE_UPLOAD_DATE, file.getUploadDate());
+        exchange.getOut().setHeader(Exchange.FILE_CONTENT_TYPE, file.getContentType());
+        exchange.getOut().setHeader(Exchange.FILE_NAME, file.getFilename());
+        exchange.getOut().setHeader(Exchange.FILE_LENGTH, file.getLength());
+        exchange.getOut().setHeader(Exchange.FILE_LAST_MODIFIED, file.getUploadDate());
     }
 }

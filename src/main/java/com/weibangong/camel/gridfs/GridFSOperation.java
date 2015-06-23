@@ -6,7 +6,7 @@ package com.weibangong.camel.gridfs;
 public enum GridFSOperation {
 
     // read operations
-//    findById,
+    findById,
 //    findOneByQuery,
 //    findAll,
 
