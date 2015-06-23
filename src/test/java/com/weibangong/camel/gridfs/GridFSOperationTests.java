@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * Created by jianghailong on 15/6/23.
  */
-public class GridFSOperationInsertTests extends AbstractGridFSTest {
+public class GridFSOperationTests extends AbstractGridFSTest {
 
     @Test
     public void testInsertWithPath() {
@@ -68,6 +68,42 @@ public class GridFSOperationInsertTests extends AbstractGridFSTest {
             }
         });
         assertResponse(exchange.getOut());
+    }
+
+    @Test
+    public void testFindById() {
+        final String objectId = prepareObjectId();
+        Exchange exchange = template.request("direct:findById", new Processor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                exchange.getIn().setHeader(GridFSConstants.FILE_ID, objectId);
+            }
+        });
+        assertResponse(exchange.getOut());
+    }
+
+    @Test
+    public void testRemoveFromHeader() {
+        final String objectId = prepareObjectId();
+        Exchange exchange = template.request("direct:remove", new Processor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                exchange.getIn().setHeader(GridFSConstants.FILE_ID, objectId);
+            }
+        });
+        Assert.assertEquals(objectId,
+                exchange.getOut().getHeader(GridFSConstants.FILE_ID, String.class)
+        );
+    }
+
+    private String prepareObjectId() {
+        Exchange exchange = template.request("direct:insert", new Processor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                exchange.getIn().setBody(new File(FILE_PATH));
+            }
+        });
+        return exchange.getOut().getHeader(GridFSConstants.FILE_ID, String.class);
     }
 
     private void assertResponse(Message response) {
